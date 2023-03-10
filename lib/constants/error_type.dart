@@ -1,0 +1,9 @@
+
+const ERR_NOT_SET_LOCATION = 1;
+const ERR_NOT_SET_PICTURE = 2;
+const ERR_NOT_SET_NAME = 3;
+const ERR_NOT_SET_WEB_STORE = 4;
+const ERR_NOT_VALID_WEB_STORE = 5;
+const ERR_NOT_VALID_YOUTUBE = 6;
+
+

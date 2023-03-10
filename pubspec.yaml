@@ -1,0 +1,80 @@
+name: bike_adventure
+description: Bike Adventure
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.1.21+71
+
+environment:
+  sdk: ">=2.17.6 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.5
+  get: ^4.6.5
+  http: ^0.13.5
+  geolocator: ^9.0.2
+  webview_flutter: ^4.0.6
+  uuid: ^3.0.7
+  url_launcher: ^6.1.10
+  image_picker: ^0.8.6+4
+  image_picker_for_web: ^2.1.11
+  flip_card: ^0.7.0
+  photo_view:
+    git:
+      url: https://github.com/bluefireteam/photo_view
+      ref: master
+  flutter_svg: ^1.1.0
+  lottie: ^2.2.0
+  google_sign_in: ^6.0.2
+  flutter_dotenv: ^5.0.2
+  package_info_plus: ^3.0.3
+  sign_in_with_apple: ^4.3.0
+  firebase_auth: ^4.2.9
+  any_link_preview: ^2.0.8
+  flutter_datetime_picker:
+    git:
+      url: https://github.com/Realank/flutter_datetime_picker
+      ref: master
+  font_awesome_flutter: ^10.4.0
+  kakao_flutter_sdk_user: ^1.4.1 # 카카오 로그인
+  kakao_flutter_sdk_navi: ^1.4.1 # 카카오내비
+  qr_code_scanner: ^1.0.1
+  qr_flutter: ^4.0.0
+  cached_network_image: ^3.2.1
+  rflutter_alert: ^2.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/
+    - assets/html/
+    - assets/banner/
+    - assets/lottie/
+    - assets/kakao_login/
+    - .env.production
+    - .env.development
+
+fonts:
+  - family: NotoSansKR
+    fonts:
+      - asset: assets/fonts/NotoSansKR-Thin.otf
+        weight: 100
+      - asset: assets/fonts/NotoSansKR-Light.otf
+        weight: 300
+      - asset: assets/fonts/NotoSansKR-Regular.otf
+        weight: 400
+      - asset: assets/fonts/NotoSansKR-Medium.otf
+        weight: 500
+      - asset: assets/fonts/NotoSansKR-Bold.otf
+        weight: 700
+      - asset: assets/fonts/NotoSansKR-Black.otf
+        weight: 900

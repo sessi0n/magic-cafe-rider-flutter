@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=yes\'>
+</head>
+<style>
+    .label {
+        margin-bottom: 96px;
+    }
+
+    .label * {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .label .left {
+        background: url("https://t1.daumcdn.net/localimg/localimages/07/2011/map/storeview/tip_l.png") no-repeat;
+        display: inline-block;
+        height: 24px;
+        overflow: hidden;
+        vertical-align: top;
+        width: 7px;
+    }
+
+    .label .center {
+        background: url(https://t1.daumcdn.net/localimg/localimages/07/2011/map/storeview/tip_bg.png) repeat-x;
+        display: inline-block;
+        height: 24px;
+        font-size: 12px;
+        line-height: 24px;
+    }
+
+    .label .right {
+        background: url("https://t1.daumcdn.net/localimg/localimages/07/2011/map/storeview/tip_r.png") -1px 0 no-repeat;
+        display: inline-block;
+        height: 24px;
+        overflow: hidden;
+        width: 6px;
+    }
+</style>
+<body style="padding:0; margin:0;">
+<div id="box" style="width:100%;height:100%;">
+    <div id="map" style="width:100%;height:100%;"></div>
+</div>
+<script>
+    function getParam(paramName) {
+        let params = location.search.substr(location.search.indexOf("?") + 1);
+        let val = "";
+        params = params.split("&");
+        for (let i = 0; i < params.length; i++) {
+            let temp = params[i].split("=");
+            if ([temp[0]].toString() === paramName) {
+                val = temp[1];
+            }
+        }
+        return val;
+    }
+
+    const lat = getParam("lat");
+    const lng = getParam("lng");
+    const height = getParam("height");
+
+    // console.log(`position aaa: ${lat}, ${lng}`);
+    document.getElementById('box').style.height = `${height}px`;
+    let isFlutterInAppWebViewReady = false;
+
+</script>
+<script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=13db77cb069d879246d300f6d6a82609&libraries=services"></script>
+<script>
+    function clickCallback(mouseEvent) {
+        searchDetailAddrFromCoords(mouseEvent.latLng, function (result, status) {
+            var road_address = !!result[0].road_address ? result[0].road_address.address_name : '';
+            var address_name = result[0].address.address_name;
+
+
+            // 클릭한 위도, 경도 정보를 가져옵니다
+            const latlng = mouseEvent.latLng;
+            marker.setPosition(latlng);
+
+            let message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, ';
+            message += '경도는 ' + latlng.getLng() + ' 입니다';
+
+            console.log(message);
+            const coords = new kakao.maps.LatLng(latlng.getLat(), latlng.getLng());
+            map.panTo(coords);
+
+            if (isFlutterInAppWebViewReady) {
+                window.flutter_inappwebview.callHandler('onSetAddress', latlng.getLat(), latlng.getLng(), road_address, address_name);
+            }
+        });
+    }
+
+    function searchAddrFromCoords(coords, callback) {
+        // 좌표로 행정동 주소 정보를 요청합니다
+        geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);
+    }
+
+    function searchDetailAddrFromCoords(coords, callback) {
+        // 좌표로 법정동 상세 주소 정보를 요청합니다
+        geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
+    }
+
+    const searchAddress = function (address) {
+        console.log(`searchAddressCallback: ${address}`);
+        geocoder.addressSearch(address, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                map.panTo(coords);
+                marker.setPosition(coords);
+
+                if (isFlutterInAppWebViewReady) {
+                    window.flutter_inappwebview.callHandler('onSetAddress', result[0].y, result[0].x, '', result[0]['address_name']);
+                }
+            }
+        });
+    }
+
+    // 키워드 검색 완료 시 호출되는 콜백함수 입니다
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+            // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+            // LatLngBounds 객체에 좌표를 추가합니다
+            // var bounds = new kakao.maps.LatLngBounds();
+            //
+            // for (var i = 0; i < data.length; i++) {
+            //     // displayMarker(data[i]);
+            //     console.log(data[i].place_name);
+            //     bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+            // }
+
+            if (data.length) {
+                // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+                // map.setBounds(bounds);
+
+                var coords = new kakao.maps.LatLng(data[0].y, data[0].x);
+                map.panTo(coords);
+                marker.setPosition(coords);
+
+                if (isFlutterInAppWebViewReady) {
+                    window.flutter_inappwebview.callHandler('onAddressList', data);
+                }
+            }
+        }
+    }
+
+
+</script>
+<script>
+    const container = document.getElementById('map');
+    const options = {
+        center: new kakao.maps.LatLng(lat, lng),
+        level: 3
+    };
+
+    const map = new kakao.maps.Map(container, options);
+    const markerPosition = new kakao.maps.LatLng(lat, lng);
+
+    const marker = new kakao.maps.Marker({
+        position: markerPosition,
+    });
+
+    marker.setMap(map);
+    const geocoder = new kakao.maps.services.Geocoder();
+    const ps = new kakao.maps.services.Places();
+
+
+    kakao.maps.event.addListener(map, 'click', clickCallback);
+
+    window.addEventListener("flutterInAppWebViewPlatformReady", function (event) {
+        isFlutterInAppWebViewReady = true;
+        searchDetailAddrFromCoords(markerPosition, function(result, status) {
+            var road_address = !!result[0].road_address ? result[0].road_address.address_name : '';
+            var address_name = result[0].address.address_name;
+            window.flutter_inappwebview.callHandler('onFirstSetAddress', markerPosition.getLat(), markerPosition.getLng(), road_address, address_name);
+        });
+    });
+    window.addEventListener('searchAddress', (event) => {
+        searchAddress(event.detail.address);
+
+        // 키워드로 장소를 검색합니다
+        ps.keywordSearch(event.detail.address, placesSearchCB);
+    }, false);
+    window.addEventListener('dataOneClick', (event) => {
+        const coords = new kakao.maps.LatLng(event.detail.lat, event.detail.lng);
+        map.panTo(coords);
+        marker.setPosition(coords);
+    }, false);
+
+
+
+
+</script>
+
+</body>
+</html>
